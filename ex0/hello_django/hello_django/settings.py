@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h)%5c3u$vzp1$p^0!pvs&&)91knq#0rtbo5!sj)3yzu^zc0ihk'
+SECRET_KEY = 'django-insecure-54)%sudowf$+24w+$qv+tebtxx0q7+zca%b=wz-&#l(j*orgui'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'myhello',
 ]
 
 MIDDLEWARE = [
@@ -115,7 +116,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-# 這是課堂要求的 Logger 設定
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -123,7 +124,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': './debug.log', # 這會在專案根目錄產生一個紀錄檔
+            'filename': './debug.log',
         },
     },
     'loggers': {
