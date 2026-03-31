@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<style>
+  /* 保持原有的 CSS 樣式 */
+  table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  td, th {
+    border: 1px solid #ddd;
+    padding: 6px;
+  }
+  tr:nth-child(even){background-color: #f2f2f2;}
+  tr:hover {background-color: #ddd;}
+  th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #04AA6D;
+    color: white;
+  }
+  /* 原有按鈕樣式 */
+  button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+
+  /* ======== 新增：Popover 相關樣式 ======== */
+  
+  /* 讓有網址的課程名稱看起來像可以點擊的連結 */
+  .course-clickable {
+    color: #0056b3;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .course-clickable:hover {
+    color: #003d82;
+  }
+
+  /* 彈出視窗的外框設計 */
+  #coursePopover {
+    display: none; /* 預設隱藏 */
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    width: 500px; /* 彈出視窗寬度，可依需求調整 */
+    height: 400px; /* 彈出視窗高度 */
+    z-index: 1000;
+    overflow: hidden;
+  }
+
+  /* 彈出視窗的頂部控制列 */
+  .popover-header {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .popover-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .close-btn {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #888;
+    margin: 0;
+    padding: 0;
+  }
+  .close-btn:hover {
+    color: #d9534f;
+  }
+
+  /* 用來載入其他網頁的 iframe */
+  #popoverIframe {
+    width: 100%;
+    height: calc(100% - 40px); /* 扣掉 header 的高度 */
+    border: none;
+  }
+</style>
+</head>
+<body>
+
+<h2>資工選課表</h2>
+
+<table id="courseTable">
+  <thead>
+    <tr>
+      <th>開課單位</th>
+      <th>課程名稱</th>
+      <th>授課教師</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="https://catalog.cgu.edu.tw/coursedata?sectionid=A2337" data-title="物件導向軟體設計">物件導向軟體設計</td>
+      <td class="teacher-name">黃崇源</td>
+    </tr>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="https://catalog.cgu.edu.tw/coursedata?sectionid=62906" data-title="計算機網路">計算機網路</td>
+      <td>李春良</td>
+    </tr>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="作業系統實務" data-title="作業系統實務">作業系統實務</td>
+      <td>張哲維</td>
+    </tr>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="https://catalog.cgu.edu.tw/coursedata?sectionid=71796" data-title="生物統計">生物統計</td>
+      <td>陳光武</td>
+    </tr>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="https://catalog.cgu.edu.tw/coursedata?sectionid=A2339" data-title="通訊系統">通訊系統</td>
+      <td>陳仁暉</td>
+    </tr>
+    <tr>
+      <td>資工系</td>
+      <td class="course-clickable" data-url="https://catalog.cgu.edu.tw/coursedata?sectionid=A2340" data-title="軟硬體專題(2)">軟硬體專題(2)</td>
+      <td>魏志達</td>
+    </tr>
+  </tbody>
+</table>
+
+<button onclick="changeTeacher()">Change</button>
+
+<div id="coursePopover">
+  <div class="popover-header">
+    <span class="popover-title" id="popoverTitle">課程詳細資料</span>
+    <button class="close-btn" onclick="closePopover()">✖</button>
+  </div>
+  <iframe id="popoverIframe" src=""></iframe>
+</div>
+
+<script>
+  // 原有的更換老師功能
+  function changeTeacher() {
+    const cells = document.querySelectorAll('.teacher-name');
+    cells.forEach(cell => {
+      if (cell.innerText === "黃崇源") {
+        cell.innerText = "李春良";
+      }
+    });
+  }
+
+  // ======== 新增：Popover 互動邏輯 ========
+  const popover = document.getElementById('coursePopover');
+  const popoverIframe = document.getElementById('popoverIframe');
+  const popoverTitle = document.getElementById('popoverTitle');
+
+  // 1. 綁定點擊事件到每個有 class="course-clickable" 的元素上
+  document.querySelectorAll('.course-clickable').forEach(item => {
+    item.addEventListener('click', function(event) {
+      event.stopPropagation(); // 阻止事件冒泡，避免觸發點擊空白處關閉的邏輯
+
+      // 取得你寫在 HTML 屬性裡的網址和課程名稱
+      const targetUrl = this.getAttribute('data-url');
+      const courseName = this.getAttribute('data-title');
+
+      // 更新 Popover 內容
+      popoverTitle.innerText = courseName + " - 詳細資料";
+      popoverIframe.src = targetUrl; // 將網址塞給 iframe 載入畫面
+
+      // 計算顯示位置 (讓它出現在滑鼠點擊處的右下方)
+      // 如果視窗太靠右邊，你可以加上判斷讓它往左彈出，這裡先示範最簡單的右下彈出
+      popover.style.display = 'block';
+      popover.style.left = (event.pageX + 15) + 'px';
+      popover.style.top = (event.pageY + 15) + 'px';
+    });
+  });
+
+  // 2. 關閉 Popover 的功能
+  function closePopover() {
+    popover.style.display = 'none';
+    popoverIframe.src = ''; // 清空 src，避免下次打開前閃過上一次的畫面
+  }
+
+  // 3. 點擊畫面其他空白處時，自動關閉 Popover
+  document.addEventListener('click', function(event) {
+    // 如果點擊的地方不在 popover 內部，且 popover 目前是顯示狀態，就關閉它
+    if (popover.style.display === 'block' && !popover.contains(event.target)) {
+      closePopover();
+    }
+  });
+</script>
+
+</body>
+</html>
