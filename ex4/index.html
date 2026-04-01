@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>ex4 聖誕樹</title>
+</head>
+<body>
+
+<h1>打開 Console 看聖誕樹 🌲</h1>
+
+<script>
+function tree(n) {
+  printTreeTop(n);
+  printTreeBottom(n);
+}
+
+function printTreeTop(n) {
+  for (let i = 1; i <= n; i++) {
+    let spaces = repeatchar(n - i, " ");
+    let stars = repeatchar(2 * i - 1, "*");
+    console.log(spaces + stars);
+  }
+}
+
+function printTreeBottom(n) {
+  for (let i = 0; i < 3; i++) {
+    let spaces = repeatchar(n - 1, " ");
+    console.log(spaces + "*");
+  }
+}
+
+function repeatchar(n, char) {
+  let result = "";
+  for (let i = 0; i < n; i++) {
+    result += char;
+  }
+  return result;
+}
+
+// 呼叫
+tree(4);
+</script>
+
+</body>
+</html>
