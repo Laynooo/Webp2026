@@ -1,0 +1,51 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
+  background: #eef2f6;
+  color: #1f2937;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+}
+
+.content {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.search-field {
+  margin-bottom: 16px;
+  background: #fff;
+}
+
+.alert {
+  margin-bottom: 16px;
+}
+
+.grid-paper {
+  height: 560px;
+  width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 20px 12px;
+  }
+
+  .grid-paper {
+    height: 620px;
+  }
+}

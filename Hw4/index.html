@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HW4 Ajax Table</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      background: #eef2f6;
+      color: #1f2937;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      color: #64748b;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .search {
+      width: min(360px, 100%);
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    .page-info {
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: #fff;
+      border: 1px solid #dbe4ef;
+      border-radius: 8px;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    table {
+      width: 100%;
+      min-width: 880px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    thead {
+      background: #1f6f78;
+      color: #fff;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5eaf0;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .empty {
+      text-align: center;
+      color: #64748b;
+      padding: 28px;
+    }
+
+    .pager {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    button {
+      min-width: 92px;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 6px;
+      background: #1f6f78;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: min(100% - 20px, 1120px);
+        padding: 20px 0;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>HW4 景點觀光展覽資訊</h1>
+    <p class="subtitle">Ajax & Table update & 分頁功能和搜尋</p>
+
+    <div class="toolbar">
+      <input
+        id="keyword"
+        class="search"
+        type="search"
+        placeholder="輸入名稱關鍵字搜尋"
+        aria-label="名稱搜尋"
+      >
+      <div id="pageInfo" class="page-info">讀取中...</div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="showTable">
+        <thead>
+          <tr>
+            <th>名稱資訊</th>
+            <th>地點</th>
+            <th>票價</th>
+            <th>開始日期</th>
+            <th>結束日期</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td class="empty" colspan="5">資料載入中...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <button id="prevBtn" type="button">上一頁</button>
+      <button id="nextBtn" type="button">下一頁</button>
+    </div>
+  </main>
+
+  <script>
+    var openUrl = "https://cloud.culture.tw/frontsite/trans/SearchShowAction.do?method=doFindTypeJ&category=6";
+    var pageSize = 10;
+    var currentPage = 1;
+    var allData = [];
+    var filteredData = [];
+
+    var keywordInput = document.getElementById("keyword");
+    var tableBody = document.getElementById("tableBody");
+    var pageInfo = document.getElementById("pageInfo");
+    var prevBtn = document.getElementById("prevBtn");
+    var nextBtn = document.getElementById("nextBtn");
+
+    keywordInput.addEventListener("change", function () {
+      currentPage = 1;
+      filterData();
+      renderTable();
+    });
+
+    prevBtn.addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        renderTable();
+      }
+    });
+
+    nextBtn.addEventListener("click", function () {
+      var totalPages = getTotalPages();
+      if (currentPage < totalPages) {
+        currentPage += 1;
+        renderTable();
+      }
+    });
+
+    function loadData() {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", openUrl, true);
+      xhr.send();
+
+      xhr.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+          allData = JSON.parse(this.responseText);
+          filterData();
+          renderTable();
+        }
+      };
+    }
+
+    function filterData() {
+      var keyword = keywordInput.value.trim().toLowerCase();
+      filteredData = allData.filter(function (item) {
+        return item.title.toLowerCase().indexOf(keyword) !== -1;
+      });
+    }
+
+    function renderTable() {
+      var totalPages = getTotalPages();
+      var start = (currentPage - 1) * pageSize;
+      var pageData = filteredData.slice(start, start + pageSize);
+
+      tableBody.innerHTML = "";
+
+      if (pageData.length === 0) {
+        tableBody.innerHTML = '<tr><td class="empty" colspan="5">查無符合資料</td></tr>';
+      } else {
+        pageData.forEach(function (item) {
+          var showInfo = item.showInfo && item.showInfo.length > 0 ? item.showInfo[0] : {};
+          var row = document.createElement("tr");
+
+          row.innerHTML =
+            "<td>" + escapeHtml(item.title || "") + "</td>" +
+            "<td>" + escapeHtml(showInfo.location || "") + "</td>" +
+            "<td>" + escapeHtml(showInfo.price || "免費或未提供") + "</td>" +
+            "<td>" + escapeHtml(item.startDate || "") + "</td>" +
+            "<td>" + escapeHtml(item.endDate || "") + "</td>";
+
+          tableBody.appendChild(row);
+        });
+      }
+
+      pageInfo.textContent =
+        "目前第 " + currentPage + " 頁 / 總共 " + totalPages + " 頁，共 " + filteredData.length + " 筆";
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+    }
+
+    function getTotalPages() {
+      return Math.max(1, Math.ceil(filteredData.length / pageSize));
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
