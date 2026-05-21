@@ -1,0 +1,170 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: Arial, "Microsoft JhengHei", sans-serif;
+  color: #17202a;
+  background: #f4f7f9;
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.game {
+  width: min(860px, 100%);
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(240px, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.game-board,
+.game-info {
+  background: #ffffff;
+  border: 1px solid #dce5eb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 12px 28px rgba(24, 39, 75, 0.08);
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 8px;
+  font-size: 30px;
+}
+
+h2 {
+  margin-bottom: 16px;
+  font-size: 22px;
+}
+
+.status {
+  min-height: 28px;
+  margin-bottom: 18px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f766e;
+}
+
+.board {
+  width: min(100%, 318px);
+  aspect-ratio: 1;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  border: 2px solid #17202a;
+  background: #17202a;
+}
+
+.board-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.square {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 0;
+  display: grid;
+  place-items: center;
+  color: #17202a;
+  background: #ffffff;
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.square:hover,
+.square:focus-visible {
+  background: #eef6f8;
+  outline: none;
+}
+
+.square.winning {
+  background: #c8f7dc;
+  color: #0f5132;
+}
+
+.reset,
+.move {
+  border: 1px solid #a8bac7;
+  border-radius: 6px;
+  color: #17202a;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.reset {
+  margin-top: 18px;
+  padding: 10px 16px;
+}
+
+.reset:hover,
+.move:hover {
+  border-color: #0f766e;
+  background: #edfdf8;
+}
+
+.move-list {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.move-list li {
+  margin-bottom: 10px;
+}
+
+.move {
+  width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+}
+
+.move.active {
+  color: #ffffff;
+  border-color: #0f766e;
+  background: #0f766e;
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    display: block;
+    padding: 20px 12px;
+  }
+
+  .game {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .game-board,
+  .game-info {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 26px;
+  }
+
+  .square {
+    font-size: 44px;
+  }
+}
